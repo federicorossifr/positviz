@@ -45,21 +45,22 @@ private:
     QGroupBox *createPositConfigurationBox();
     QGroupBox *createDecimalInputBox();
     QGroupBox *createPositOutputBox();
+    QGroupBox *createPositToolsBox();
 
     void visualizeOutput();
 
     std::pair<int, double> doubleToPosit(double val);
-
+    std::pair<int, int> getCurrentPositConfiguration();
     double positToDouble(int signed_raw);
 };
 
-using p8e0 = posit::Posit<int8_t, 8, 0, uint8_t , posit::PositSpec::WithInfs>;
-using p8e1 = posit::Posit<int8_t, 8, 1, uint8_t , posit::PositSpec::WithInfs>;
-using p8e2 = posit::Posit<int8_t, 8, 2, uint8_t , posit::PositSpec::WithInfs>;
-using p8e3 = posit::Posit<int8_t, 8, 3, uint8_t , posit::PositSpec::WithInfs>;
-using p16e0 = posit::Posit<int16_t, 16, 0, uint16_t , posit::PositSpec::WithInfs>;
-using p16e1 = posit::Posit<int16_t, 16, 1, uint16_t , posit::PositSpec::WithInfs>;
-using p16e2 = posit::Posit<int16_t, 16, 2, uint16_t , posit::PositSpec::WithInfs>;
-using p16e3 = posit::Posit<int16_t, 16, 3, uint16_t , posit::PositSpec::WithInfs>;
+using p8e0 = posit::Posit<int8_t, 8, 0, uint8_t , posit::PositSpec::WithNan>;
+using p8e1 = posit::Posit<int8_t, 8, 1, uint8_t , posit::PositSpec::WithNan>;
+using p8e2 = posit::Posit<int8_t, 8, 2, uint8_t , posit::PositSpec::WithNan>;
+using p8e3 = posit::Posit<int8_t, 8, 3, uint8_t , posit::PositSpec::WithNan>;
+using p16e0 = posit::Posit<int16_t, 16, 0, uint16_t , posit::PositSpec::WithNan>;
+using p16e1 = posit::Posit<int16_t, 16, 1, uint16_t , posit::PositSpec::WithNan>;
+using p16e2 = posit::Posit<int16_t, 16, 2, uint16_t , posit::PositSpec::WithNan>;
+using p16e3 = posit::Posit<int16_t, 16, 3, uint16_t , posit::PositSpec::WithNan>;
 
 #endif //POSITVIZ_POSITVIZWINDOW_H

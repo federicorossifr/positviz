@@ -11,8 +11,8 @@ PositVizWindow::PositVizWindow(QWidget* parent): QWidget(parent) {
     auto* gl = new QGridLayout;
     gl->addWidget(createPositConfigurationBox(),0,0);
     gl->addWidget(createDecimalInputBox(),0,1);
-    gl->addWidget(createPositOutputBox(),1,0,1,2);
-
+    gl->addWidget(createPositOutputBox(),1,0);
+    gl->addWidget(createPositToolsBox(),1,1);
     this->setLayout(gl);
     this->resize(640,320);
 }
@@ -76,6 +76,13 @@ QGroupBox *PositVizWindow::createPositConfigurationBox() {
 
     return gb;
 }
+
+std::pair<int, int> PositVizWindow::getCurrentPositConfiguration() {
+    auto currentIndex = _positConfigurationSelection->currentIndex();
+    return _positConfigurations[currentIndex];
+}
+
+
 
 QGroupBox *PositVizWindow::createDecimalInputBox() {
     auto *gb = new QGroupBox(tr("Decimal value input"));
@@ -187,6 +194,62 @@ void PositVizWindow::visualizeOutput() {
     }
 }
 
+QGroupBox *PositVizWindow::createPositToolsBox() {
+    auto *gb = new QGroupBox(tr("Posit tools"));
+
+    auto* oneVal = new QPushButton("Posit::One");
+    auto* maxVal = new QPushButton("Posit::Max");
+    auto* minVal = new QPushButton("Posit::Min");
+    auto* nextVal = new QPushButton("Posit::Next");
+    auto* prevVal = new QPushButton("Posit::Prev");
+
+    connect(oneVal, &QPushButton::released, this, [&]() -> bool {
+        auto [n, e] = getCurrentPositConfiguration();
+        _positIntValueInputField->setText(QString::number(1 << (n-2)));
+        visualizeOutput();
+        return true;
+    });
+
+    connect(maxVal, &QPushButton::released, this, [&]() -> bool {
+        auto [n, e] = getCurrentPositConfiguration();
+        _positIntValueInputField->setText(QString::number( (1 << (n-1))-1 ));
+        visualizeOutput();
+        return true;
+    });
+
+    connect(minVal, &QPushButton::released, this, [&]() -> bool {
+        _positIntValueInputField->setText(QString::number(1));
+        visualizeOutput();
+        return true;
+    });
+
+    connect(prevVal, &QPushButton::released, this, [&]() -> bool {
+        auto current = _positIntValueInputField->text().toLong();
+        _positIntValueInputField->setText(QString::number(current-1));
+        visualizeOutput();
+        return true;
+    });
+
+    connect(nextVal, &QPushButton::released, this, [&]() -> bool {
+        auto current = _positIntValueInputField->text().toLong();
+        _positIntValueInputField->setText(QString::number(current+1));
+        visualizeOutput();
+        return true;
+    });
+
+    auto *vb = new QVBoxLayout;
+    vb->addWidget(oneVal);
+    vb->addWidget(maxVal);
+    vb->addWidget(minVal);
+    vb->addWidget(prevVal);
+    vb->addWidget(nextVal);
+
+    gb->setLayout(vb);
+
+    return gb;
+
+}
+
 double PositVizWindow::positToDouble(int signed_raw) {
     unsigned configuration = _positConfigurationSelection->currentIndex();
     double v{0};
@@ -222,3 +285,5 @@ std::pair<int, double> PositVizWindow::doubleToPosit(double val) {
     }
     return v;
 }
+
+
