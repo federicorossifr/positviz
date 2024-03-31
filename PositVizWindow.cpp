@@ -205,6 +205,7 @@ QGroupBox *PositVizWindow::createPositToolsBox() {
 
     connect(oneVal, &QPushButton::released, this, [&]() -> bool {
         auto [n, e] = getCurrentPositConfiguration();
+        _decimalValueInputField->setText("");
         _positIntValueInputField->setText(QString::number(1 << (n-2)));
         visualizeOutput();
         return true;
@@ -212,6 +213,7 @@ QGroupBox *PositVizWindow::createPositToolsBox() {
 
     connect(maxVal, &QPushButton::released, this, [&]() -> bool {
         auto [n, e] = getCurrentPositConfiguration();
+        _decimalValueInputField->setText("");
         _positIntValueInputField->setText(QString::number( (1 << (n-1))-1 ));
         visualizeOutput();
         return true;
@@ -219,6 +221,7 @@ QGroupBox *PositVizWindow::createPositToolsBox() {
 
     connect(minVal, &QPushButton::released, this, [&]() -> bool {
         _positIntValueInputField->setText(QString::number(1));
+        _decimalValueInputField->setText("");
         visualizeOutput();
         return true;
     });
@@ -226,6 +229,7 @@ QGroupBox *PositVizWindow::createPositToolsBox() {
     connect(prevVal, &QPushButton::released, this, [&]() -> bool {
         auto current = _positIntValueInputField->text().toLong();
         _positIntValueInputField->setText(QString::number(current-1));
+        _decimalValueInputField->setText("");
         visualizeOutput();
         return true;
     });
@@ -233,6 +237,7 @@ QGroupBox *PositVizWindow::createPositToolsBox() {
     connect(nextVal, &QPushButton::released, this, [&]() -> bool {
         auto current = _positIntValueInputField->text().toLong();
         _positIntValueInputField->setText(QString::number(current+1));
+        _decimalValueInputField->setText("");
         visualizeOutput();
         return true;
     });

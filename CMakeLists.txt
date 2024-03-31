@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-include_directories("/Users/federico/CLionProjects/cppposit/include")
+include_directories($ENV{CPPPOSIT_INCLUDE_DIR})
 
 find_package(Qt5 COMPONENTS
         Core
