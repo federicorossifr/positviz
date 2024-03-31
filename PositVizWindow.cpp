@@ -4,7 +4,8 @@
 
 
 #include "PositVizWindow.h"
-#include <iostream>
+
+
 PositVizWindow::PositVizWindow(QWidget* parent): QWidget(parent) {
     this->setWindowTitle("PositViz");
     auto* gl = new QGridLayout;
@@ -20,9 +21,29 @@ QGroupBox *PositVizWindow::createPositConfigurationBox() {
     auto *gb = new QGroupBox(tr("Posit configuration"));
 
     auto* nbitsSb = new QSpinBox();
+    nbitsSb->setEnabled(false);
+    _positNbits = nbitsSb;
     nbitsSb->setValue(8);
     auto* expSb = new QSpinBox();
+    expSb->setEnabled(false);
+    _positEsBits = expSb;
     expSb->setValue(2);
+
+    auto* configurationCombo = new QComboBox;
+    _positConfigurationSelection = configurationCombo;
+    for(const auto& conf: _positConfigurationsLabels) {
+        configurationCombo->addItem(conf);
+    }
+
+    connect(_positConfigurationSelection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int newIndex) -> bool {
+        auto [n,e] = _positConfigurations[newIndex];
+        _positNbits->setValue(n);
+        _positEsBits->setValue(e);
+        return true;
+    });
+
+    configurationCombo->setCurrentIndex(0);
+    configurationCombo->currentIndexChanged(0);
 
     auto* withNaN = new QCheckBox();
     withNaN->setCheckState(Qt::CheckState(0));
@@ -41,8 +62,10 @@ QGroupBox *PositVizWindow::createPositConfigurationBox() {
     withNanInfHbox->addWidget(withInf);
 
     auto* applyButton = new QPushButton("Apply");
+    connect(applyButton, &QPushButton::released, this, &PositVizWindow::visualizeOutput);
 
     auto *vb = new QVBoxLayout;
+    vb->addWidget(configurationCombo);
     vb->addWidget(nbitsLabel);
     vb->addWidget(nbitsSb);
     vb->addWidget(expLabel);
@@ -162,17 +185,40 @@ void PositVizWindow::visualizeOutput() {
         _positIntValueLabel->setText(QString::number(repr));
         _positHexValueLabel->setText("0x"+QString::number(repr,16));
     }
-
-
-
 }
 
 double PositVizWindow::positToDouble(int signed_raw) {
-    using pp = posit::Posit<int8_t, 8, 2, uint8_t , posit::PositSpec::WithInfs>;
-    return double(pp::from_sraw(signed_raw));
+    unsigned configuration = _positConfigurationSelection->currentIndex();
+    double v{0};
+
+    switch (configuration) {
+        case 0:  v = double(p8e0::from_sraw((int8_t)signed_raw)); break;
+        case 1:  v = double(p8e1::from_sraw((int8_t)signed_raw)); break;
+        case 2:  v = double(p8e2::from_sraw((int8_t)signed_raw)); break;
+        case 3:  v = double(p8e3::from_sraw((int8_t)signed_raw)); break;
+        case 4:  v = double(p16e0::from_sraw((int16_t)signed_raw)); break;
+        case 5:  v = double(p16e1::from_sraw((int16_t)signed_raw)); break;
+        case 7:  v = double(p16e2::from_sraw((int16_t)signed_raw)); break;
+        case 8:  v = double(p16e3::from_sraw((int16_t)signed_raw)); break;
+        default: v= double(p8e0::from_sraw((int8_t)signed_raw)); break;
+    }
+    return v;
 }
 
 std::pair<int, double> PositVizWindow::doubleToPosit(double val) {
-    using pp = posit::Posit<int8_t, 8, 2, uint8_t , posit::PositSpec::WithInfs>;
-    return {pp(val).v, double(pp(val))};
+    unsigned configuration = _positConfigurationSelection->currentIndex();
+
+    std::pair<int, double> v;
+    switch (configuration) {
+        case 0:  v = {p8e0(val).v, double(p8e0(val))}; break;
+        case 1:  v = {p8e1(val).v, double(p8e1(val))}; break;
+        case 2:  v = {p8e2(val).v, double(p8e2(val))}; break;
+        case 3:  v = {p8e3(val).v, double(p8e3(val))}; break;
+        case 4:  v = {p16e0(val).v, double(p16e0(val))}; break;
+        case 5:  v = {p16e1(val).v, double(p16e1(val))}; break;
+        case 7:  v = {p16e2(val).v, double(p16e2(val))}; break;
+        case 8:  v = {p16e3(val).v, double(p16e3(val))}; break;
+        default: v= {p8e0(val).v, double(p8e0(val))}; break;
+    }
+    return v;
 }
